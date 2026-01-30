@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  monitor:
+    build: .
+    container_name: monitor_website
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./:/app
+      # 如果不想在容器内生成 logs，可以映射日志文件
+      # - ./logs:/app/logs
+    env_file:
+      - .env
