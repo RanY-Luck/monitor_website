@@ -14,13 +14,7 @@
 
 ### 方式一：Docker 部署 (推荐)
 
-1. **克隆项目**
-   ```bash
-   git clone <your-repo-url>
-   cd monitor_website
-   ```
-
-2. **配置环境变量**
+1. **配置环境变量**
    复制示例配置并修改：
    ```bash
    cp .env.example .env
@@ -31,7 +25,7 @@
    - `MONITOR_URL_TEST`: 测试服 API 地址
    - `MONITOR_INTERVAL`: 检查间隔（秒）
 
-3. **启动服务**
+2. **启动服务**
    ```bash
    docker-compose up -d --build
    ```
