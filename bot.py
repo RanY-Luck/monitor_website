@@ -6,9 +6,20 @@
 # @Software : PyCharm
 # @Desc     : 企业微信通知模块
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+try:
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+except ImportError:
+    ZoneInfo = None
+    ZoneInfoNotFoundError = Exception
 from pathlib import Path
 from logger import log
+
+try:
+    BEIJING_TIMEZONE = ZoneInfo('Asia/Shanghai') if ZoneInfo else timezone(timedelta(hours=8), name='Asia/Shanghai')
+except ZoneInfoNotFoundError:
+    BEIJING_TIMEZONE = timezone(timedelta(hours=8), name='Asia/Shanghai')
 
 
 class WeComNotifier:
@@ -35,6 +46,12 @@ class WeComNotifier:
             return None
         except:
             return None
+
+    def _now(self):
+        return datetime.now(BEIJING_TIMEZONE)
+
+    def _format_now(self):
+        return self._now().strftime('%Y-%m-%d %H:%M:%S')
 
     def upload_file(self, file_path):
         """
@@ -257,7 +274,7 @@ class WeComNotifier:
             error_message: 错误信息
             device_id: 设备ID（可选）
         """
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time = self._format_now()
 
         log.error(f"发送错误警报: {error_message}")
 
@@ -306,7 +323,7 @@ class WeComNotifier:
         rate_num = float(display_rate)
 
         # 获取当前时间
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time = self._format_now()
 
         # 状态判断
         if rate_num == 100:
@@ -411,7 +428,7 @@ class WeComNotifier:
 
         log.info("发送任务开始通知...")
 
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time = self._format_now()
 
         # 预估耗时计算
         if send_interval > 0:
@@ -432,7 +449,7 @@ class WeComNotifier:
             minutes = int(total_time_minutes % 60)
             time_display = f"约 {hours} 小时 {minutes} 分钟"
 
-        estimated_end_time = datetime.now() + timedelta(seconds=total_time_seconds)
+        estimated_end_time = self._now() + timedelta(seconds=total_time_seconds)
         estimated_end_str = estimated_end_time.strftime('%H:%M:%S')
 
         content = f"""# 🚀 TCP 设备批量发送任务
@@ -464,7 +481,7 @@ class WeComNotifier:
         参数:
             results: list, 监控结果列表 [{'name': '正式服', 'success': True, 'msg': '...', 'code': 200}, ...]
         """
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time = self._format_now()
         
         # 统计
         total = len(results)
@@ -521,3 +538,4 @@ class WeComNotifier:
 #         {'name': '测试服', 'success': False, 'code': 500, 'msg': 'Internal Server Error'}
 #     ]
 #     notifier.send_monitor_report(results)
+
